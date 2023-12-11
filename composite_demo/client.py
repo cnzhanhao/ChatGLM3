@@ -145,7 +145,7 @@ class HFClient(Client):
 
         if pt_checkpoint is not None and os.path.exists(pt_checkpoint):
             config = AutoConfig.from_pretrained(model_path, trust_remote_code=True, pre_seq_len=PRE_SEQ_LEN)
-            self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True, config=config)
+            self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True, config=config, device='cuda')
             prefix_state_dict = torch.load(os.path.join(pt_checkpoint, "pytorch_model.bin"))
             new_prefix_state_dict = {}
             for k, v in prefix_state_dict.items():
@@ -156,8 +156,8 @@ class HFClient(Client):
         else:
             # If you need 4bit quantization, run:
             # self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(4).cuda()
-            self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True)
-        self.model = self.model.to(DEVICE).eval() if 'cuda' in DEVICE else self.model.float().to(DEVICE).eval()
+            self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True, device='cuda')
+        self.model = self.model.eval() if 'cuda' in DEVICE else self.model.float().eval()
 
     def generate_stream(self,
                         system: str | None,
