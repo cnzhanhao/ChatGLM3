@@ -157,7 +157,7 @@ class HFClient(Client):
             # If you need 4bit quantization, run:
             # self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True, device='cuda').quantize(4).cuda()
             self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True, device='cuda')
-        self.model = self.model.eval() if 'cuda' in DEVICE else self.model.float().eval()
+        self.model = self.model.eval() if 'cuda' in DEVICE else self.model.eval()
 
     def generate_stream(self,
                         system: str | None,
