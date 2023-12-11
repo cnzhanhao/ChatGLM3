@@ -17,7 +17,7 @@ st.set_page_config(
 def get_model():
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_PATH, trust_remote_code=True)
     if 'cuda' in DEVICE:  # AMD, NVIDIA GPU can use Half Precision
-        model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True).to(DEVICE).eval()
+        model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True, device='cuda').eval()
     else:  # CPU, Intel GPU and other GPU can use Float16 Precision Only
         model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True).float().to(DEVICE).eval()
     # 多显卡支持,使用下面两行代替上面一行,将num_gpus改为你实际的显卡数量
