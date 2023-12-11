@@ -114,4 +114,4 @@ with gr.Blocks() as demo:
 
     emptyBtn.click(reset_state, outputs=[chatbot, history, past_key_values], show_progress=True)
 
-demo.queue().launch(share=False, server_name="127.0.0.1", server_port=8501, inbrowser=True)
+demo.queue().launch(share=True, server_name="127.0.0.1", server_port=8501, inbrowser=True)
