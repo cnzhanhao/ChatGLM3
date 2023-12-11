@@ -141,10 +141,10 @@ def stream_chat(self, tokenizer, query: str,
 class HFClient(Client):
     def __init__(self, model_path: str, tokenizer_path: str, pt_checkpoint: str = None, DEVICE='cpu'):
         self.model_path = model_path
-        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_path, trust_remote_code=True, device='cuda')
 
         if pt_checkpoint is not None and os.path.exists(pt_checkpoint):
-            config = AutoConfig.from_pretrained(model_path, trust_remote_code=True, pre_seq_len=PRE_SEQ_LEN)
+            config = AutoConfig.from_pretrained(model_path, trust_remote_code=True, pre_seq_len=PRE_SEQ_LEN, device='cuda')
             self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True, config=config, device='cuda')
             prefix_state_dict = torch.load(os.path.join(pt_checkpoint, "pytorch_model.bin"))
             new_prefix_state_dict = {}
@@ -155,7 +155,7 @@ class HFClient(Client):
             self.model.transformer.prefix_encoder.load_state_dict(new_prefix_state_dict)
         else:
             # If you need 4bit quantization, run:
-            # self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True).quantize(4).cuda()
+            # self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True, device='cuda').quantize(4).cuda()
             self.model = AutoModel.from_pretrained(model_path, trust_remote_code=True, device='cuda')
         self.model = self.model.eval() if 'cuda' in DEVICE else self.model.float().eval()
 
