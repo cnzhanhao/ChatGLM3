@@ -81,14 +81,14 @@ def main():
     set_seed(training_args.seed)
 
     # Load pretrained model and tokenizer
-    config = AutoConfig.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
+    config = AutoConfig.from_pretrained(model_args.model_name_or_path, trust_remote_code=True, device='cuda')
     config.pre_seq_len = model_args.pre_seq_len
     config.prefix_projection = model_args.prefix_projection
 
-    tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, trust_remote_code=True, device='cuda')
 
     if model_args.ptuning_checkpoint is not None:
-        model = AutoModel.from_pretrained(model_args.model_name_or_path, config=config, trust_remote_code=True)
+        model = AutoModel.from_pretrained(model_args.model_name_or_path, config=config, trust_remote_code=True, device='cuda')
         prefix_state_dict = torch.load(os.path.join(model_args.ptuning_checkpoint, "pytorch_model.bin"))
         new_prefix_state_dict = {}
         for k, v in prefix_state_dict.items():
@@ -96,7 +96,7 @@ def main():
                 new_prefix_state_dict[k[len("transformer.prefix_encoder."):]] = v
         model.transformer.prefix_encoder.load_state_dict(new_prefix_state_dict)
     else:
-        model = AutoModel.from_pretrained(model_args.model_name_or_path, config=config, trust_remote_code=True)
+        model = AutoModel.from_pretrained(model_args.model_name_or_path, config=config, trust_remote_code=True, device='cuda')
 
     if model_args.quantization_bit is not None:
         print(f"Quantized to {model_args.quantization_bit} bit")
@@ -104,11 +104,12 @@ def main():
     if model_args.pre_seq_len is not None:
         # P-tuning v2
         model = model.half()
-        model.transformer.prefix_encoder.float()
+        # model.transformer.prefix_encoder.float()
     else:
         # Finetune
-        model = model.float()
-    
+        # model = model.float()
+        model = model
+
     with open(data_args.train_file, "r", encoding="utf-8") as f:
         if data_args.train_file.endswith(".json"):
             train_data = json.load(f)
